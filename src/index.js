@@ -12,7 +12,7 @@ const options = {
 };
 
 const Author = {
-    name: SQGType.String(),
+    name: SQGType.String(120),
     age: SQGType.Integer(),
     // books: {model: "Book", relation: Relation.ONE_TO_MANY, fetchType: FetchType.EAGER}
 };

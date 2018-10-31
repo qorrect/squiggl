@@ -42,7 +42,7 @@ class SQG {
     static generateModels(obj) {
         const models = [];
         Object.keys(obj).forEach(key => {
-            obj[key]['__model'] = key;
+            obj[key]['_model'] = key;
             models.push(obj[key]);
         });
         return models;

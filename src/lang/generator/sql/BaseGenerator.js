@@ -7,7 +7,7 @@ class BaseGenerator {
         return `CREATE DATABASE IF NOT EXISTS ${name}\n`;
     }
 
-    prune(model, fields = ['__model']) {
+    prune(model, fields = ['_model']) {
         fields.forEach(field => {
             delete model[field];
         });
@@ -15,7 +15,7 @@ class BaseGenerator {
     }
 
     createTable(model) {
-        let sql = `CREATE TABLE ${model.__model} (`;
+        let sql = `CREATE TABLE ${model._model} (`;
         const fields = [], keys = [];
         Object.keys(this.prune(model)).forEach(field => {
             // Its a non-primitive type
@@ -33,10 +33,11 @@ class BaseGenerator {
             }
             // Its a primitive type
             else {
-                fields.push(field + ' ' + this.getSqlType(fieldObj));
+                fields.push(field + ' ' + fieldObj);
             }
         });
-        sql += fields.join(',') + ' , ' + keys.join(',') + ',' + this.createPrimaryKey() + ' )';
+        let key_clause = keys.length ? keys.join(',') + ',' : '';
+        sql += fields.join(',') + ' , ' + key_clause + this.createPrimaryKey() + ' )';
         return sql + ';';
     }
 

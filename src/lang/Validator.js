@@ -31,7 +31,7 @@ class Validator {
     }
 
     static findModel(modelName, models) {
-        return models.find(model => model['__model'] == modelName);
+        return models.find(model => model['_model'] == modelName);
     }
 }
 
