@@ -4,7 +4,7 @@ class Validator {
 
 
     static validate(models, options) {
-        const requiredConfigs = ['vendor', 'username', 'password']
+        const requiredConfigs = ['vendor', 'username', 'password', 'schemaName'];
         const errorResponse = {
             errors: [],
             succeeded: true,
@@ -26,6 +26,7 @@ class Validator {
             });
         });
 
+        errorResponse.succeeded = errorResponse.errors.length === 0;
         return errorResponse;
     }
 

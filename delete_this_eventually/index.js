@@ -5,10 +5,17 @@ const ClauseObject = {
     orderByClause: String
 };
 
+
 class Book {
     constructor() {
+        this._table = 'BOOK';
         this.title = '';
         this.contents = '';
+        /**
+         *
+         * @type {Date}
+         */
+        this.publishedDate = null;
         /**
          *
          * @type {Author}
@@ -25,6 +32,8 @@ class Author {
 
 
     constructor() {
+        this._table = 'AUTHOR';
+
         this.name = '';
         this.age = 0;
     }
@@ -48,4 +57,10 @@ class Author {
     getBooks() {
 
     }
+}
+
+
+
+async function main() {
+
 }

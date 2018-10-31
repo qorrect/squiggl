@@ -1,24 +1,27 @@
-const {Relation, Type, Generator} = require('./sqg');
+const {SQG} = require('./sqg');
+const {SQGType, Relation, FetchType} = require('./constants');
 
 const options = {
     database: 'library',
     vendor: 'mysql',
     username: 'root',
     password: 'm',
-    language: 'java',
+    language: 'node',
+    schemaName: 'CHARLIE_TEST',
     createTables: true
 };
 
 const Author = {
-    name: Type.String,
-    age: Type.Integer,
-    books: {model: "Book", relation: Relation.ONE_TO_MANY}
+    name: SQGType.String(),
+    age: SQGType.Integer(),
+    // books: {model: "Book", relation: Relation.ONE_TO_MANY, fetchType: FetchType.EAGER}
 };
 
 const Book = {
-    title: Type.String,
-    contents: Type.Text,
-    publishDate: Type.Date
+    title: SQGType.String(),
+    contents: SQGType.Text(),
+    author: {model: "Author", relation: Relation.MANY_TO_ONE, fetchType: FetchType.EAGER},
+    publishDate: SQGType.Date
 };
 
-Generator.generate({Author, Book}, options);
+SQG.generate({Author, Book}, options);

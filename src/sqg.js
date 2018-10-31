@@ -2,42 +2,42 @@ const sysUtil = require('./utils/sysUtils');
 const _ = require('lodash');
 const Validator = require('./lang/Validator');
 const PrettyPrinter = require('./lang/PrettyPrinter');
-const FetchType = {
-    EAGER: "Eager",
-    LAZY: "lazy"
-};
+const SQLGenerator = require('./lang/generator/sql/SQLGenerator');
 
-const Relation = {
-    N_TO_ONE: 'N2ONE',
-    ONE_TO_MANY: 'ONE_TO_MANY',
-    N_TO_N: 'N_TO_N',
-    ONE_TO_ONE: 'ONE_TO_ONE'
-
-};
-
-const Type = {
-    String: 'String',
-    Integer: 'Integer',
-    UUID: 'UUID',
-    Date: 'Date',
-    Float: 'Float',
-    Text: 'Text'
-};
-
-function safeExit() {
-    console.log('You had some errors');
+function safeExit(msg = 'You had some errors') {
+    console.log(msg + ' ... Exiting');
     process.exit();
 }
 
-class Generator {
+class SQG {
     static generate(obj, options) {
-        const models = Generator.generateModels(obj);
+        const models = SQG.generateModels(obj);
         PrettyPrinter.print(models);
         console.log(JSON.stringify(options));
         const res = Validator.validate(models, options);
-        console.log(res);
+        if (!res.succeeded) {
+            res.errors.forEach(e => console.log(e));
+            safeExit();
+        }
+        if (!res.hasRequired) {
+            safeExit('You are missing required options , put more detail here later');
+        }
+
+        const sql = SQG.generateSQL(models, options);
+        console.log(sql);
     }
 
+
+    static generateSQL(models, options) {
+        const generator = SQLGenerator.get(options.vendor);
+        let sql = '';
+        sql += generator.createDatabase(options.schemaName);
+        models.forEach(model => {
+            sql += generator.createTable(model) + '\n';
+        });
+        return sql;
+
+    }
 
     static generateModels(obj) {
         const models = [];
@@ -50,4 +50,4 @@ class Generator {
 
 }
 
-module.exports = {FetchType, Relation, Type, Generator};
+module.exports = {SQG};
