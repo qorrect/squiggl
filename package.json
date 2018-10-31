@@ -1,0 +1,33 @@
+{
+  "name": "squigl",
+  "version": "1.0.0",
+  "description": "SQL Generator",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://qorrect@bitbucket.org/qorrect/squigl.git"
+  },
+  "keywords": [
+    "not",
+    "an",
+    "orm",
+    "sql",
+    "generator",
+    "sql",
+    "prototyper"
+  ],
+  "author": "charlie sanders",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/qorrect/squigl#readme",
+  "dependencies": {
+    "dustjs-linkedin": "^2.7.5",
+    "lodash": "^4.17.11",
+    "minimist": "^1.2.0",
+    "mysql-promise": "^5.0.0",
+    "usleep": "^1.0.3"
+  }
+}
