@@ -3,6 +3,12 @@ const _ = require('lodash');
 const Validator = require('./lang/Validator');
 const PrettyPrinter = require('./lang/PrettyPrinter');
 const SQLGenerator = require('./lang/generator/sql/SQLGenerator');
+const {Strings} = require('./constants');
+const langUtil = require('./lang/langUtil');
+
+process.on('uncaughtException', (err) => {
+    console.log('Fatal error encountered!\n\n', err.message  );
+});
 
 function safeExit(msg = 'You had some errors') {
     console.log(msg + ' ... Exiting');
@@ -12,7 +18,7 @@ function safeExit(msg = 'You had some errors') {
 class SQG {
     static generate(obj, options) {
         const models = SQG.populateOppositeRelation(SQG.generateModels(obj));
-        // PrettyPrinter.print(models);
+        PrettyPrinter.print(models);
         const res = Validator.validate(models, options);
         if (!res.succeeded) {
             res.errors.forEach(e => console.log(e));
@@ -23,6 +29,7 @@ class SQG {
         }
 
         const sql = SQG.generateSQL(models, options);
+        console.log(sql);
     }
 
 
@@ -56,16 +63,22 @@ class SQG {
 
     static populateOppositeRelation(models) {
         const map = SQG.generateModelMap(models);
-        console.log(JSON.stringify(map, null, 4));
         Object.keys(map).forEach(modelName => {
             const model = map[modelName];
-            Object.keys(model).forEach(field => {
+            Object.keys(model).forEach(fieldName => {
                 // Its a non-primitive type
-                const fieldObj = model[field];
-                const id = fieldObj.model + '_id';
+                const fieldObj = model[fieldName];
+                const id = fieldObj._model + '_id';
 
-                if (_.isObject(fieldObj)) {
-                    console.log(fieldObj.model);
+                if (langUtil.isCustomType(fieldObj, fieldName)) {
+                    const opposite = map[fieldObj.model];
+                    if (!opposite) {
+                        throw new Error('Model ' + fieldObj.model + ' not found ( referenced by ' + modelName + ' ) , did you pass it to generate() ?');
+                    }
+                    opposite[Strings.REFERENCED_BY] = fieldObj;
+                    opposite[Strings.REFERENCED_BY].originalModel = opposite[Strings.REFERENCED_BY].model;
+                    delete opposite[Strings.REFERENCED_BY].model;
+                    opposite[Strings.REFERENCED_BY].refByModel = modelName;
                 }
                 // Its a primitive type
                 else {

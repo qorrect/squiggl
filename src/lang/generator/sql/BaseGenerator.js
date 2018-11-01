@@ -1,5 +1,7 @@
 const _ = require('lodash');
-const {SQGType, Relation, FetchType} = require('../../../constants');
+const {SQGType, Relation, Strings} = require('../../../constants');
+const langUtil = require('../../langUtil');
+const logger = require('../../../utils/logUtil');
 
 class BaseGenerator {
 
@@ -16,28 +18,49 @@ class BaseGenerator {
 
     createTable(model) {
         let sql = `CREATE TABLE ${model._model} (`;
-        const fields = [], keys = [];
+        const fields = [], keys = [], manyToMany = [];
         Object.keys(this.prune(model)).forEach(field => {
             // Its a non-primitive type
+
             const fieldObj = model[field];
             const id = fieldObj.model + '_id';
 
-            if (_.isObject(fieldObj)) {
-                if (fieldObj.relation === Relation.MANY_TO_ONE ||
-                    fieldObj.relation === Relation.MANY_TO_MANY) {
+            if (langUtil.isCustomType(fieldObj, field)) {
+                if (fieldObj.relation === Relation.MANY_TO_ONE) {
                     fields.push(id + ' int');
                     keys.push(`FOREIGN KEY (${id}) REFERENCES ${fieldObj.model} (id)`);
 
                 }
             }
             // Its a primitive type
-            else {
+            else if (!langUtil.isMetaType(field)) {
                 fields.push(field + ' ' + fieldObj);
             }
+            else {
+                logger.warn('Doing nothing with field type ' + field)
+            }
         });
+
+        if (!_.isEmpty(model[Strings.REFERENCED_BY])) {
+            const refBy = model[Strings.REFERENCED_BY];
+            if (refBy.relation === Relation.ONE_TO_MANY ||
+                refBy.relation === Relation.ONE_TO_ONE) {
+                fields.push(refBy.refByModel + '_id int');
+            }
+            else if (refBy.relation === Relation.MANY_TO_ONE ||
+                refBy.relation === Relation.MANY_TO_MANY) {
+                manyToMany.push({relation: refBy.relation, model: refBy.originalModel, refByModel: refBy.refByModel});
+            }
+        }
+
         let key_clause = keys.length ? keys.join(',') + ',' : '';
         sql += fields.join(',') + ' , ' + key_clause + this.createPrimaryKey() + ' )';
-        return sql + ';';
+        sql += ';';
+
+        manyToMany.forEach(obj => {
+            sql += `\nCREATE TABLE ${obj.model}_${obj.refByModel} (${obj.model}_id int, ${obj.refByModel}_id int )`;
+        });
+        return sql;
     }
 
     createPrimaryKey() {

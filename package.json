@@ -26,6 +26,7 @@
   "dependencies": {
     "dustjs-linkedin": "^2.7.5",
     "lodash": "^4.17.11",
+    "log4js": "^3.0.6",
     "minimist": "^1.2.0",
     "mysql-promise": "^5.0.0",
     "usleep": "^1.0.3"

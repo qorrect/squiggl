@@ -6,7 +6,7 @@ log4js.configure(
     appenders: {
       file: {
         type: 'file',
-        filename: 'logs/sfg-automation-api.log',
+        filename: 'build/logs/squiggl.log',
         maxLogSize: 10 * 1024 * 1024, // = 10Mb
         numBackups: 5, // keep five backup files
         compress: false, // compress the backups
@@ -27,7 +27,7 @@ log4js.configure(
   }
 );
 
-const loggerFacade = log4js.getLogger('SFGA');
+const loggerFacade = log4js.getLogger('SQG');
 
 class LoggerFacade {
   constructor() {

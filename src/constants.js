@@ -4,7 +4,8 @@ const Strings = {
             MYSQL: 'mysql',
             POSTGRESQL: 'postgresql'
         }
-    }
+    },
+    REFERENCED_BY: 'referencedBy'
 };
 
 const SQGType = {

@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const langUtil = require('../lang/langUtil');
 
 class Validator {
 
@@ -16,7 +17,7 @@ class Validator {
         models.forEach(model => {
             Object.keys(model).forEach(key => {
                 const field = model[key];
-                if (_.isObject(field)) {
+                if (langUtil.isCustomType(field, key)) {
                     if ('model' in field) {
                         if (!Validator.findModel(field.model, models)) {
                             errorResponse.errors.push(`The referenced model ${field.model} for the field ${key} could not be found`)

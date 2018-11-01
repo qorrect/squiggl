@@ -10,6 +10,10 @@ const options = {
     schemaName: 'CHARLIE_TEST',
     createTables: true
 };
+const Editor = {
+    name: SQGType.String(),
+    yearEstablished: SQGType.Integer()
+};
 
 const Author = {
     name: SQGType.String(120),
@@ -20,7 +24,8 @@ const Author = {
 const Book = {
     title: SQGType.String(),
     contents: SQGType.Text(),
-    publishDate: SQGType.Date()
+    publishDate: SQGType.Date(),
+    publisher: {model: "Editor", relation: Relation.MANY_TO_MANY, fetchType: FetchType.EAGER}
 };
 
-SQG.generate({Author, Book}, options);
+SQG.generate({Author, Book, Editor}, options);
