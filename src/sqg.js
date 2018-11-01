@@ -11,9 +11,8 @@ function safeExit(msg = 'You had some errors') {
 
 class SQG {
     static generate(obj, options) {
-        const models = SQG.generateModels(obj);
-        PrettyPrinter.print(models);
-        console.log(JSON.stringify(options));
+        const models = SQG.populateOppositeRelation(SQG.generateModels(obj));
+        // PrettyPrinter.print(models);
         const res = Validator.validate(models, options);
         if (!res.succeeded) {
             res.errors.forEach(e => console.log(e));
@@ -24,7 +23,6 @@ class SQG {
         }
 
         const sql = SQG.generateSQL(models, options);
-        console.log(sql);
     }
 
 
@@ -45,6 +43,36 @@ class SQG {
             obj[key]['_model'] = key;
             models.push(obj[key]);
         });
+        return models;
+    }
+
+    static generateModelMap(models) {
+        const map = {};
+        models.forEach(model => {
+            map[model._model] = model;
+        });
+        return map;
+    }
+
+    static populateOppositeRelation(models) {
+        const map = SQG.generateModelMap(models);
+        console.log(JSON.stringify(map, null, 4));
+        Object.keys(map).forEach(modelName => {
+            const model = map[modelName];
+            Object.keys(model).forEach(field => {
+                // Its a non-primitive type
+                const fieldObj = model[field];
+                const id = fieldObj.model + '_id';
+
+                if (_.isObject(fieldObj)) {
+                    console.log(fieldObj.model);
+                }
+                // Its a primitive type
+                else {
+                }
+            });
+        });
+
         return models;
     }
 

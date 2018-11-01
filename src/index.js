@@ -14,14 +14,13 @@ const options = {
 const Author = {
     name: SQGType.String(120),
     age: SQGType.Integer(),
-    // books: {model: "Book", relation: Relation.ONE_TO_MANY, fetchType: FetchType.EAGER}
+    books: {model: "Book", relation: Relation.ONE_TO_MANY, fetchType: FetchType.EAGER}
 };
 
 const Book = {
     title: SQGType.String(),
     contents: SQGType.Text(),
-    author: {model: "Author", relation: Relation.MANY_TO_ONE, fetchType: FetchType.EAGER},
-    publishDate: SQGType.Date
+    publishDate: SQGType.Date()
 };
 
 SQG.generate({Author, Book}, options);

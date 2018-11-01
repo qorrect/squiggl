@@ -8,18 +8,13 @@ const Strings = {
 };
 
 const SQGType = {
-    String: function (size = 50) {
-        return `varchar(${size})`;
-    },
-    Integer: function (size = 8) {
-        return `int(${size})`;
-    },
+    String: (size = 50) => `varchar(${size})`,
+
+    Integer: (size = 8) => `int(${size})`,
     UUID: 'UUID',
-    Date: 'Date',
+    Date: () => 'Date',
     Float: 'Float',
-    Text: function () {
-        return 'text ';
-    }
+    Text: () => 'text'
 };
 
 const FetchType = {

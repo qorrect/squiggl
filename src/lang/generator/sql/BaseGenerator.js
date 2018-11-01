@@ -22,7 +22,6 @@ class BaseGenerator {
             const fieldObj = model[field];
             const id = fieldObj.model + '_id';
 
-            console.log(JSON.stringify(fieldObj, null, 4));
             if (_.isObject(fieldObj)) {
                 if (fieldObj.relation === Relation.MANY_TO_ONE ||
                     fieldObj.relation === Relation.MANY_TO_MANY) {
