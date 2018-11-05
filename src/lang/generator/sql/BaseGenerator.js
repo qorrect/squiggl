@@ -6,7 +6,7 @@ const logger = require('../../../utils/logUtil');
 class BaseGenerator {
 
     createDatabase(name) {
-        return `CREATE DATABASE IF NOT EXISTS ${name}\n`;
+        return `CREATE DATABASE IF NOT EXISTS ${name};USE ${name};\n`;
     }
 
     prune(model, fields = ['_model']) {
@@ -58,7 +58,10 @@ class BaseGenerator {
         sql += ';';
 
         manyToMany.forEach(obj => {
-            sql += `\nCREATE TABLE ${obj.model}_${obj.refByModel} (${obj.model}_id int, ${obj.refByModel}_id int )`;
+            const modelId = obj.model + '_id';
+            const refId = obj.refByModel + '_id';
+            sql += `\nCREATE TABLE ${obj.model}_${obj.refByModel} (${modelId} int, ${refId} int,  ` +
+                this.createPrimaryKey() + `, INDEX lookup(${modelId},${refId}) );`;
         });
         return sql;
     }

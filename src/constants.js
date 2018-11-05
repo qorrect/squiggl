@@ -8,7 +8,7 @@ const Strings = {
     REFERENCED_BY: 'referencedBy'
 };
 
-const SQGType = {
+const Type = {
     String: (size = 50) => `varchar(${size})`,
 
     Integer: (size = 8) => `int(${size})`,
@@ -32,4 +32,4 @@ const Relation = {
 };
 
 
-module.exports = {FetchType, Relation, Strings, SQGType};
+module.exports = {FetchType, Relation, Strings, Type};

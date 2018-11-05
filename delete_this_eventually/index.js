@@ -4,7 +4,7 @@ db.configure({
     "host": "localhost",
     "user": "root",
     "password": "m",
-    "database": "TEST"
+    "database": "CHARLIE_TEST"
 });
 
 const ClauseObject = {
@@ -60,6 +60,19 @@ class SquigglDAO {
         throw new Error('This must be overriden');
     }
 
+    async _update(bean) {
+        throw new Error('This must be overriden');
+    }
+
+    async _insert(bean) {
+        throw new Error('This must be overriden');
+    }
+
+    async upsert(bean) {
+        if (bean.id) return _update(bean);
+        else return _insert(bean);
+    }
+
 }
 
 class BookDAO extends SquigglDAO {
@@ -98,9 +111,12 @@ class AuthorDAO extends SquigglDAO {
      * @return {Promise<Author>}
      */
     async rowToClass(row) {
-        const author = new Author(row.name, row.age, row.id);
-        console.log(JSON.stringify(author, null, 4));
-        return author;
+        if (row) {
+            const author = new Author(row.name, row.age, row.id);
+            console.log(JSON.stringify(author, null, 4));
+            return author;
+        }
+        else return new Author();
 
     }
 
