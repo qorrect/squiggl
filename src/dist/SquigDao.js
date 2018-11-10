@@ -1,0 +1,100 @@
+const Connection = require('database-js').Connection;
+
+class SquigDao {
+
+    constructor(table, clz, factory) {
+
+        this.clz = clz;
+        this.factory = factory;
+        this.connection =
+            // new Connection("sqlite:///path/to/test.sqlite"); // SQLite
+            new Connection("mysql://root:m@localhost/CHARLIE_TEST"); // MySQL
+// new Connection("postgres://user:password@localhost/test"); // PostgreSQL
+        this._table = table;
+    }
+
+    getTable() {
+        return this._table;
+    }
+
+
+    async _exec(sql, ...args) {
+        console.log(`Executing ${sql} with (${args})`);
+
+        const statement = this.connection.prepareStatement(sql);
+        const results = await statement.query(args);
+        // console.log(results);
+        return results;
+    }
+
+    async _findById(id) {
+        const sql = `SELECT * from ${this._table} WHERE id = ? `;
+        const res = await this._exec(sql, id);
+        return this.rowToClass(res[0])
+    }
+
+    async nToOneRelated(id, column) {
+        const sql = `SELECT * from ${this._table} WHERE ${column}_id = ?`;
+        const res = await this._exec(sql, id);
+        return res;
+    }
+
+    async nToNRelated(id, column) {
+        const sql = `SELECT * from ${this._table} WHERE id in (
+                        SELECT ${this._table}_id from ${this._table}_${column} WHERE ${column}_id = ?
+                    )`;
+        const res = await this._exec(sql, id);
+        return res;
+    }
+
+    getRelatedFields() {
+        return [];
+    }
+
+    /**
+     * @override
+     * @param row
+     * @return {Promise<Author>}
+     */
+    async rowToClass(row) {
+        if (row) {
+            console.log(this.clz);
+            const retObj = this.clz.create(row);
+            const fields = this.getRelatedFields();
+
+            for (let i = 0; i < fields.length; i++) {
+                const obj = fields[i];
+                const res = await obj['dao'].get()[obj.relation](row.id, this.getTable());
+                retObj[obj['field']] = await obj['dao'].get()['rowToClass'](res);
+            }
+
+            return retObj;
+        }
+        else return this.clz.create(row);
+    }
+
+    async _update(bean) {
+        throw new Error('This must be overriden');
+    }
+
+    async _insert(bean) {
+        throw new Error('This must be overriden');
+    }
+
+    async upsert(bean) {
+        if (bean.id) return _update(bean);
+        else return _insert(bean);
+    }
+
+}
+
+
+class SquigBean {
+
+    constructor(row) {
+        Object.keys(row).forEach(key => this[key] = row[key]);
+    }
+}
+
+
+module.exports = {SquigDao, SquigBean};
