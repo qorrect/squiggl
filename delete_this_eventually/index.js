@@ -1,12 +1,5 @@
-var db = require('mysql-promise')();
-
-db.configure({
-    "host": "localhost",
-    "user": "root",
-    "password": "m",
-    "database": "CHARLIE_TEST"
-});
-
+const Connection = require('database-js').Connection;
+const {clone} = require('../src/utils/sysUtils');
 const ClauseObject = {
     whereClause: String,
     limit: Number,
@@ -15,32 +8,54 @@ const ClauseObject = {
 };
 
 
-class Book {
-    constructor(title, contents, publishedDate, id) {
-        this._table = 'BOOK';
-        this.title = title;
-        this.contents = contents;
-        /**
-         *
-         * @type {Date}
-         */
-        this.publishedDate = publishedDate;
-        /**
-         *
-         * @type {Author}
-         */
-        this.author = null;
-        this.id = id;
+class SquiggBean {
+
+    constructor(row) {
+        Object.keys(row).forEach(key => this[key] = row[key]);
     }
+}
+
+
+class Author extends SquiggBean {
+
+    //
+    constructor(props) {
+        super(props);
+    }
+
+    static create(row) {
+        return new Author(row);
+    }
+
+}
+
+
+class Book extends SquiggBean {
+
+    //
+    constructor(props) {
+        super(props);
+    }
+
+    static create(row) {
+        return new Book(row);
+    }
+
 
 }
 
 let authorInstance = null;
 let bookInstance = null;
 
-class SquigglDAO {
+class SquiggDao {
 
-    constructor(table) {
+    constructor(table, clz) {
+
+        this.clz = clz;
+        this.connection =
+            // new Connection("sqlite:///path/to/test.sqlite"); // SQLite
+            new Connection("mysql://root:m@localhost/CHARLIE_TEST"); // MySQL
+// new Connection("postgres://user:password@localhost/test"); // PostgreSQL
         this._table = table;
     }
 
@@ -48,16 +63,53 @@ class SquigglDAO {
         return this._table;
     }
 
-    async findById(id) {
-        let sql = `SELECT * from ${this._table} WHERE id=${id}`;
-        console.log(sql);
-        const res = await db.query(sql);
-        console.log(JSON.stringify(res[0][0], null, 4));
-        return this.rowToClass(res[0][0])
+    async _exec(sql, ...args) {
+        console.log(`Executing ${sql} with (${args})`);
+
+        const statement = this.connection.prepareStatement(sql);
+        const results = await statement.query(args);
+        // console.log(results);
+        return results;
     }
 
-    async rowToClass() {
-        throw new Error('This must be overriden');
+    async _findById(id) {
+        const sql = `SELECT * from ${this._table} WHERE id = ? `;
+        const res = await this._exec(sql, id);
+        return this.rowToClass(res[0])
+    }
+
+    async nToOneRelated(id, column) {
+        const sql = `SELECT * from ${this._table} WHERE ${column}_id = ?`;
+        const res = await this._exec(sql, id);
+        return res;
+    }
+
+    getRelatedFields() {
+        return [];
+    }
+
+    /**
+     * @override
+     * @param row
+     * @return {Promise<Author>}
+     */
+    async rowToClass(row) {
+        if (row) {
+            console.log(this.clz);
+            const author = this.clz.create(row);
+            const fields = this.getRelatedFields();
+
+            for (let i = 0; i < fields.length; i++) {
+                const obj = fields[i];
+                const res = await obj['dao'].get()['nToOneRelated'](row.id, this.getTable());
+                author[obj['field']] = await obj['dao'].get()['rowToClass'](res);
+            }
+
+
+            return author;
+        }
+        else return new Author();
+
     }
 
     async _update(bean) {
@@ -75,10 +127,10 @@ class SquigglDAO {
 
 }
 
-class BookDAO extends SquigglDAO {
+class BookDAO extends SquiggDao {
 
-    constructor(table = 'Book') {
-        super(table);
+    constructor(table = 'Book', clz = Book) {
+        super(table, clz);
     }
 
     static get() {
@@ -88,14 +140,27 @@ class BookDAO extends SquigglDAO {
             return bookInstance;
         }
     }
+
 }
 
-class AuthorDAO extends SquigglDAO {
+class AuthorDAO extends SquiggDao {
 
-    constructor(table = 'Author') {
-        super(table);
+    constructor(table = 'Author', clz = Author) {
+        super(table, clz);
     }
 
+    getRelatedFields() {
+        return [{
+            field: 'books',
+            table: 'Book',
+            dao: BookDAO,
+            relation: 'nToOneRelated'
+        }];
+    }
+
+    static findById(id) {
+        return AuthorDAO.get()._findById(id);
+    }
 
     static get() {
         if (authorInstance) return authorInstance;
@@ -105,43 +170,12 @@ class AuthorDAO extends SquigglDAO {
         }
     }
 
-    /**
-     * @override
-     * @param row
-     * @return {Promise<Author>}
-     */
-    async rowToClass(row) {
-        if (row) {
-            const author = new Author(row.name, row.age, row.id);
-            console.log(JSON.stringify(author, null, 4));
-            return author;
-        }
-        else return new Author();
-
-    }
-
 
 }
-
-class Author {
-
-
-    constructor(name = null, age = null, id = null) {
-        this._table = 'Author';
-        this.name = name;
-        this.age = age;
-        this.id = id;
-
-        this.books = [];
-
-    }
-
-}
-
 
 async function main() {
 
-    const author = await AuthorDAO.get().findById(1);
+    const author = await AuthorDAO.findById(1);
     console.log(JSON.stringify(author, null, 4));
 
 
