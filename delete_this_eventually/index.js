@@ -12,6 +12,18 @@ class Author extends SquigBean {
 }
 
 
+class Book extends SquigBean {
+    //
+    constructor(props) {
+        super(props);
+    }
+
+    static create(row) {
+        return new Book(row);
+    }
+}
+
+
 class Editor extends SquigBean {
     //
     constructor(props) {
@@ -24,20 +36,18 @@ class Editor extends SquigBean {
 }
 
 
-class Book extends SquigBean {
+class Fans extends SquigBean {
     //
     constructor(props) {
         super(props);
     }
 
     static create(row) {
-        return new Book(row);
+        return new Fans(row);
     }
 }
 
-let authorInstance = null;
-let bookInstance = null;
-let editorInstance = null;
+let BookInstance = null;
 
 class BookDAO extends SquigDao {
 
@@ -46,24 +56,26 @@ class BookDAO extends SquigDao {
     }
 
     getRelatedFields() {
-        return [{
-            field: 'editors',
-            table: 'Editor',
-            dao: EditorDAO,
-            relation: 'nToNRelated'
-        }];
+        return [
+            {
+                field: 'editors',
+                table: 'Editor',
+                dao: EditorDAO,
+                relation: 'nToNRelated'
+            },];
     }
 
     static get() {
-        if (bookInstance) return bookInstance;
+        if (BookInstance) return BookInstance;
         else {
-            bookInstance = new BookDAO();
-            return bookInstance;
+            BookInstance = new BookDAO();
+            return BookInstance;
         }
     }
 
 }
 
+let EditorInstance = null;
 
 class EditorDAO extends SquigDao {
 
@@ -71,15 +83,21 @@ class EditorDAO extends SquigDao {
         super(table, clz);
     }
 
+    getRelatedFields() {
+        return [];
+    }
+
     static get() {
-        if (editorInstance) return editorInstance;
+        if (EditorInstance) return EditorInstance;
         else {
-            editorInstance = new EditorDAO();
-            return editorInstance;
+            EditorInstance = new EditorDAO();
+            return EditorInstance;
         }
     }
 
 }
+
+let AuthorInstance = null;
 
 class AuthorDAO extends SquigDao {
 
@@ -88,23 +106,50 @@ class AuthorDAO extends SquigDao {
     }
 
     getRelatedFields() {
-        return [{
-            field: 'books',
-            table: 'Book',
-            dao: BookDAO,
-            relation: 'nToOneRelated'
-        }];
+        return [
+            {
+                field: 'books',
+                table: 'Book',
+                dao: BookDAO,
+                relation: 'nToOneRelated'
+            },];
     }
 
-
     static get() {
-        if (authorInstance) return authorInstance;
+        if (AuthorInstance) return AuthorInstance;
         else {
-            authorInstance = new AuthorDAO();
-            return authorInstance;
+            AuthorInstance = new AuthorDAO();
+            return AuthorInstance;
         }
     }
 
+}
+
+let FansInstance = null;
+
+class FansDAO extends SquigDao {
+
+    constructor(table = 'Fans', clz = Fans) {
+        super(table, clz);
+    }
+
+    getRelatedFields() {
+        return [
+            {
+                field: 'author',
+                table: 'Author',
+                dao: AuthorDAO,
+                relation: 'oneToNRelated'
+            },];
+    }
+
+    static get() {
+        if (FansInstance) return FansInstance;
+        else {
+            FansInstance = new FansDAO();
+            return FansInstance;
+        }
+    }
 
 }
 

@@ -7,7 +7,7 @@ class ${model._model}DAO extends SquigDao {
     }
 
     getRelatedFields() {
-        return ${relatedFields};
+        return [${relatedFields}];
     }
 
     static get() {
