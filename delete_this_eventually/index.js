@@ -47,55 +47,7 @@ class Fans extends SquigBean {
     }
 }
 
-let BookInstance = null;
 
-class BookDAO extends SquigDao {
-
-    constructor(table = 'Book', clz = Book) {
-        super(table, clz);
-    }
-
-    getRelatedFields() {
-        return [
-            {
-                field: 'editors',
-                table: 'Editor',
-                dao: EditorDAO,
-                relation: 'nToNRelated'
-            },];
-    }
-
-    static get() {
-        if (BookInstance) return BookInstance;
-        else {
-            BookInstance = new BookDAO();
-            return BookInstance;
-        }
-    }
-
-}
-
-let EditorInstance = null;
-
-class EditorDAO extends SquigDao {
-
-    constructor(table = 'Editor', clz = Editor) {
-        super(table, clz);
-    }
-
-    getRelatedFields() {
-        return [];
-    }
-
-    static get() {
-        if (EditorInstance) return EditorInstance;
-        else {
-            EditorInstance = new EditorDAO();
-            return EditorInstance;
-        }
-    }
-
-}
 
 let AuthorInstance = null;
 
@@ -122,9 +74,63 @@ class AuthorDAO extends SquigDao {
             return AuthorInstance;
         }
     }
+    getFans( fans){
 
+    }
 }
+let BookInstance = null;
 
+class BookDAO extends SquigDao {
+
+    constructor(table = 'Book', clz = Book) {
+        super(table, clz);
+    }
+
+    getRelatedFields() {
+        return [
+            {
+                field: 'editors',
+                table: 'Editor',
+                dao: EditorDAO,
+                relation: 'nToNRelated'
+            },];
+    }
+
+    static get() {
+        if (BookInstance) return BookInstance;
+        else {
+            BookInstance = new BookDAO();
+            return BookInstance;
+        }
+    }
+    getAuthor( author){
+
+    }
+}
+let EditorInstance = null;
+
+class EditorDAO extends SquigDao {
+
+    constructor(table = 'Editor', clz = Editor) {
+        super(table, clz);
+    }
+
+    getRelatedFields() {
+        return [
+        ];
+    }
+
+    static get() {
+        if (EditorInstance) return EditorInstance;
+        else {
+            EditorInstance = new EditorDAO();
+            return EditorInstance;
+        }
+    }
+    getBook( book){
+
+    }
+}
 let FansInstance = null;
 
 class FansDAO extends SquigDao {

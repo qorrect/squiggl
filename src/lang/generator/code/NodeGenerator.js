@@ -10,6 +10,8 @@ class NodeGenerator extends BaseCodeGenerator {
 
         const compiled = _.template(fs.readFileSync(__dirname + '/NodeDao.template'));
         let relatedFields = '\n';
+        const refBy = [];
+
         Object.keys(model).forEach(key => {
             const field = model[key];
             if (langUtil.isCustomType(field, key)) {
@@ -23,8 +25,14 @@ class NodeGenerator extends BaseCodeGenerator {
 
                 relatedFields += "},";
             }
+            else if (langUtil.isMetaType( key)) {
+                console.log('\n\n\n\nYESSSSSSSSSSSSSSSSSSS=========================\n\n\n');
+                console.log(model);
+                console.log(field);
+                refBy.push(field);
+            }
         });
-        return compiled({model, relatedFields});
+        return compiled({model, relatedFields, refBy});
     }
 
     generateBean(model) {

@@ -17,5 +17,7 @@ class ${model._model}DAO extends SquigDao {
             return ${model._model}Instance;
         }
     }
+    <% _.forEach(refBy, function(obj) { %>get<%- obj.refByModel %>( <%-obj.originalModel.toLowerCase() %>){
 
+    }<% }); %>
 }
