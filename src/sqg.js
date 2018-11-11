@@ -97,9 +97,14 @@ class SQG {
         const generator = CodeGenerator.get(options.language);
         let code = '';
         models.forEach(model => {
-            console.log(JSON.stringify(model,null,4));
+            code += generator.generateBean(model);
+        });
+
+        models.forEach(model => {
             code += generator.generateDao(model);
         });
+
+
         return code;
     }
 }

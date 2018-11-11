@@ -1,0 +1,12 @@
+
+class ${model._model} extends SquigBean {
+    //
+    constructor(props) {
+        super(props);
+    }
+
+    static create(row) {
+        return new ${model._model}(row);
+    }
+}
+

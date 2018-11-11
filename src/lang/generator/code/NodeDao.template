@@ -1,16 +1,20 @@
-let ${_model}Instance = null;
+let ${model._model}Instance = null;
 
-class ${_model}DAO extends SquigDao {
+class ${model._model}DAO extends SquigDao {
 
-    constructor(table = '${_model}', clz = ${_model}) {
+    constructor(table = '${model._model}', clz = ${model._model}) {
         super(table, clz);
     }
 
+    getRelatedFields() {
+        return ${relatedFields};
+    }
+
     static get() {
-        if (${_model}Instance) return ${_model}Instance;
+        if (${model._model}Instance) return ${model._model}Instance;
         else {
-            ${_model}Instance = new ${_model}DAO();
-            return ${_model}Instance;
+            ${model._model}Instance = new ${model._model}DAO();
+            return ${model._model}Instance;
         }
     }
 

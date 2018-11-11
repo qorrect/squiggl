@@ -19,7 +19,7 @@ class Editor extends SquigBean {
     }
 
     static create(row) {
-        return new Author(row);
+        return new Editor(row);
     }
 }
 
