@@ -1,6 +1,6 @@
-const BaseGenerator = require('./BaseGenerator');
+const BaseSQLGenerator = require('./BaseSQLGenerator');
 
-class MysqlGenerator extends BaseGenerator {
+class MysqlGenerator extends BaseSQLGenerator {
 
     constructor(props) {
         super(props);

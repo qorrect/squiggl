@@ -1,0 +1,17 @@
+let ${_model}Instance = null;
+
+class ${_model}DAO extends SquigDao {
+
+    constructor(table = '${_model}', clz = ${_model}) {
+        super(table, clz);
+    }
+
+    static get() {
+        if (${_model}Instance) return ${_model}Instance;
+        else {
+            ${_model}Instance = new ${_model}DAO();
+            return ${_model}Instance;
+        }
+    }
+
+}

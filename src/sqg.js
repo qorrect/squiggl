@@ -3,11 +3,13 @@ const _ = require('lodash');
 const Validator = require('./lang/Validator');
 const PrettyPrinter = require('./lang/PrettyPrinter');
 const SQLGenerator = require('./lang/generator/sql/SQLGenerator');
+const CodeGenerator = require('./lang/generator/code/CodeGenerator');
+
 const {Strings} = require('./constants');
 const langUtil = require('./lang/langUtil');
 
 process.on('uncaughtException', (err) => {
-    console.log('Fatal error encountered!\n\n', err.message  );
+    console.log('Fatal error encountered!\n\n', err.message);
 });
 
 function safeExit(msg = 'You had some errors') {
@@ -30,6 +32,8 @@ class SQG {
 
         const sql = SQG.generateSQL(models, options);
         console.log(sql);
+        const code = SQG.generateCode(models, options);
+        console.log(code);
     }
 
 
@@ -89,6 +93,15 @@ class SQG {
         return models;
     }
 
+    static generateCode(models, options) {
+        const generator = CodeGenerator.get(options.language);
+        let code = '';
+        models.forEach(model => {
+            console.log(JSON.stringify(model,null,4));
+            code += generator.generateDao(model);
+        });
+        return code;
+    }
 }
 
 module.exports = {SQG};

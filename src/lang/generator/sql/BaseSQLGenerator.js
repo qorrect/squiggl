@@ -2,18 +2,20 @@ const _ = require('lodash');
 const {SQGType, Relation, Strings} = require('../../../constants');
 const langUtil = require('../../langUtil');
 const logger = require('../../../utils/logUtil');
+const {clone} = require('../../../utils/sysUtils');
 
-class BaseGenerator {
+class BaseSQLGenerator {
 
     createDatabase(name) {
         return `CREATE DATABASE IF NOT EXISTS ${name};USE ${name};\n`;
     }
 
     prune(model, fields = ['_model']) {
+        const ret = clone(model);
         fields.forEach(field => {
-            delete model[field];
+            delete ret[field];
         });
-        return model;
+        return ret;
     }
 
     createTable(model) {
@@ -88,4 +90,4 @@ class BaseGenerator {
 
 }
 
-module.exports = BaseGenerator;
+module.exports = BaseSQLGenerator;
