@@ -28,4 +28,9 @@ const Book = {
     publisher: {model: "Editor", relation: Relation.MANY_TO_MANY, fetchType: FetchType.EAGER}
 };
 
-SQG.generate({Author, Book, Editor}, options);
+const Fans = {
+    title: Type.String(),
+    author: {model: "Author", relation: Relation.MANY_TO_ONE, fetchType: FetchType.EAGER}
+}
+
+SQG.generate({Author, Book, Editor, Fans}, options);

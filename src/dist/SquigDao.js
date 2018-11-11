@@ -2,10 +2,9 @@ const Connection = require('database-js').Connection;
 
 class SquigDao {
 
-    constructor(table, clz, factory) {
+    constructor(table, clz) {
 
         this.clz = clz;
-        this.factory = factory;
         this.connection =
             // new Connection("sqlite:///path/to/test.sqlite"); // SQLite
             new Connection("mysql://root:m@localhost/CHARLIE_TEST"); // MySQL
@@ -56,21 +55,33 @@ class SquigDao {
      * @param row
      * @return {Promise<Author>}
      */
+
     async rowToClass(row) {
+        if (Array.isArray(row)) {
+            const res = [];
+            for (let i = 0; i < row.length; i++) {
+                res.push(await this._rowToClass(row[i]));
+            }
+
+            return res;
+        }
+        else return this._rowToClass(row);
+    }
+
+    async _rowToClass(row) {
         if (row) {
-            console.log(this.clz);
             const retObj = this.clz.create(row);
             const fields = this.getRelatedFields();
 
             for (let i = 0; i < fields.length; i++) {
                 const obj = fields[i];
                 const res = await obj['dao'].get()[obj.relation](row.id, this.getTable());
-                retObj[obj['field']] = await obj['dao'].get()['rowToClass'](res);
+                retObj[obj['field']] = (await obj['dao'].get()['rowToClass'](res));
             }
 
             return retObj;
         }
-        else return this.clz.create(row);
+        else return {};
     }
 
     async _update(bean) {

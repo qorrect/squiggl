@@ -83,8 +83,8 @@ class EditorDAO extends SquigDao {
 
 class AuthorDAO extends SquigDao {
 
-    constructor(table = 'Author', clz = Author, factory = AuthorDAO) {
-        super(table, clz, factory);
+    constructor(table = 'Author', clz = Author) {
+        super(table, clz);
     }
 
     getRelatedFields() {

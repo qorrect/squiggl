@@ -23,12 +23,12 @@ class BaseGenerator {
             // Its a non-primitive type
 
             const fieldObj = model[field];
-            const id = fieldObj.model + '_id';
+            const id = fieldObj.originalModel + '_id';
 
             if (langUtil.isCustomType(fieldObj, field)) {
                 if (fieldObj.relation === Relation.MANY_TO_ONE) {
                     fields.push(id + ' int');
-                    keys.push(`FOREIGN KEY (${id}) REFERENCES ${fieldObj.model} (id)`);
+                    keys.push(`FOREIGN KEY (${id}) REFERENCES ${fieldObj.originalModel} (id)`);
 
                 }
             }
@@ -47,8 +47,7 @@ class BaseGenerator {
                 refBy.relation === Relation.ONE_TO_ONE) {
                 fields.push(refBy.refByModel + '_id int');
             }
-            else if (refBy.relation === Relation.MANY_TO_ONE ||
-                refBy.relation === Relation.MANY_TO_MANY) {
+            else if (refBy.relation === Relation.MANY_TO_MANY) {
                 manyToMany.push({relation: refBy.relation, model: refBy.originalModel, refByModel: refBy.refByModel});
             }
         }
