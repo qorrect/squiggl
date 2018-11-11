@@ -1,9 +1,10 @@
-const sysUtil = require('./utils/sysUtils');
+const {clone} = require('./utils/sysUtils');
 const _ = require('lodash');
 const Validator = require('./lang/Validator');
 const PrettyPrinter = require('./lang/PrettyPrinter');
 const SQLGenerator = require('./lang/generator/sql/SQLGenerator');
 const CodeGenerator = require('./lang/generator/code/CodeGenerator');
+const fs = require('fs');
 
 const {Strings} = require('./constants');
 const langUtil = require('./lang/langUtil');
@@ -18,9 +19,10 @@ function safeExit(msg = 'You had some errors') {
 }
 
 class SQG {
-    static generate(obj, options) {
+    static generate(obj, _options) {
         const models = SQG.populateOppositeRelation(SQG.generateModels(obj));
-        PrettyPrinter.print(models);
+        const options = SQG.ensureDefaultOptions(_options);
+        // PrettyPrinter.print(models);
         const res = Validator.validate(models, options);
         if (!res.succeeded) {
             res.errors.forEach(e => console.log(e));
@@ -31,9 +33,15 @@ class SQG {
         }
 
         const sql = SQG.generateSQL(models, options);
-        console.log(sql);
+        // console.log(sql);
+        SQG.write(sql,'squig.sql', options.outdir);
         const code = SQG.generateCode(models, options);
-        console.log(code);
+        SQG.write(code,'dao.js', options.outdir)
+        // console.log(code);
+    }
+
+    static write(data,file,dir) {
+        fs.writeFileSync(dir + '/' + file, data);
     }
 
 
@@ -95,7 +103,7 @@ class SQG {
 
     static generateCode(models, options) {
         const generator = CodeGenerator.get(options.language);
-        let code = '';
+        let code = generator.generateImports(options);
         models.forEach(model => {
             code += generator.generateBean(model);
         });
@@ -103,9 +111,15 @@ class SQG {
         models.forEach(model => {
             code += generator.generateDao(model);
         });
-
+        code += generator.generateExports(models);
 
         return code;
+    }
+
+    static ensureDefaultOptions(_options) {
+        const options = clone(_options);
+        options.outdir = options.outdir ? options.outdir : 'squig_out/';
+        return options;
     }
 }
 

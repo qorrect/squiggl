@@ -15,8 +15,7 @@ class NodeGenerator extends BaseCodeGenerator {
         Object.keys(model).forEach(key => {
             const field = model[key];
             if (langUtil.isCustomType(field, key)) {
-                console.log(field);
-                console.log('\n\n\nHERE\n\n');
+
                 relatedFields += "{\n";
                 relatedFields += "field: '" + key + "',\n";
                 relatedFields += "table: '" + field.originalModel + "',\n";
@@ -25,10 +24,7 @@ class NodeGenerator extends BaseCodeGenerator {
 
                 relatedFields += "},";
             }
-            else if (langUtil.isMetaType( key)) {
-                console.log('\n\n\n\nYESSSSSSSSSSSSSSSSSSS=========================\n\n\n');
-                console.log(model);
-                console.log(field);
+            else if (langUtil.isMetaType(key)) {
                 refBy.push(field);
             }
         });
@@ -56,6 +52,19 @@ class NodeGenerator extends BaseCodeGenerator {
 
         }
         return relation;
+    }
+
+    generateImports(options) {
+        return 'const {SquigBean, SquigDao} = require(\'../src/dist/SquigDao\');\n';
+    }
+
+    generateExports(models) {
+        let code = 'module.exports = {';
+        models.forEach(model => {
+            code += `${model._model}DAO, ${model._model},`;
+        });
+        code = code.substring(0, code.length - 1) + '};';
+        return code;
     }
 }
 

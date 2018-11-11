@@ -8,6 +8,7 @@ const options = {
     password: 'm',
     language: 'node',
     schemaName: 'CHARLIE_TEST',
+    outdir: 'delete_this_eventually',
     createTables: true
 };
 

@@ -2,3 +2,4 @@ Make this tool a npm global install that looks for a file named squigg.js and ge
 /squigg/out with a sample file and a package.json file
 
 Add proper type definitions that will work with vanilla node
+Types and typehinting everywhere

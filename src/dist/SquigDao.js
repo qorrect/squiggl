@@ -38,6 +38,19 @@ class SquigDao {
         return res;
     }
 
+    async nToOneReferenced(id, column) {
+        const sql = `SELECT * from ${column} WHERE ${this._table}_id = ?`;
+        const res = await this._exec(sql, id);
+        return res;
+    }
+
+    async oneToNRelated(id, column) {
+        const sql = `SELECT * from ${column} WHERE id = ?`;
+        const res = await this._exec(sql, id);
+        return res;
+    }
+
+
     async nToNRelated(id, column) {
         const sql = `SELECT * from ${this._table} WHERE id in (
                         SELECT ${this._table}_id from ${this._table}_${column} WHERE ${column}_id = ?
