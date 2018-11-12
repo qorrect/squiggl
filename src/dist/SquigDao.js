@@ -7,7 +7,7 @@ class SquigDao {
         this.clz = clz;
         this.connection =
             // new Connection("sqlite:///path/to/test.sqlite"); // SQLite
-            new Connection("mysql://root:m@localhost/CHARLIE_TEST"); // MySQL
+            new Connection('mysql://root:m@localhost/CHARLIE_TEST'); // MySQL
 // new Connection("postgres://user:password@localhost/test"); // PostgreSQL
         this._table = table;
     }
@@ -19,17 +19,23 @@ class SquigDao {
 
     async _exec(sql, ...args) {
         console.log(`Executing ${sql} with (${args})`);
-
         const statement = this.connection.prepareStatement(sql);
-        const results = await statement.query(args);
+        const results = await statement.query(...args);
         // console.log(results);
         return results;
+    }
+
+
+    async _find(sql, ...args) {
+        const res = await this._exec(`SELECT * from ${this._table} WHERE ` + sql, ...args);
+        const ret = await this.rowToClass(res);
+        return ret;
     }
 
     async _findById(id) {
         const sql = `SELECT * from ${this._table} WHERE id = ? `;
         const res = await this._exec(sql, id);
-        return this.rowToClass(res[0])
+        return this.rowToClass(res[0]);
     }
 
     async nToOneRelated(id, column) {
@@ -75,7 +81,6 @@ class SquigDao {
             for (let i = 0; i < row.length; i++) {
                 res.push(await this._rowToClass(row[i]));
             }
-
             return res;
         }
         else return this._rowToClass(row);
@@ -85,13 +90,11 @@ class SquigDao {
         if (row) {
             const retObj = this.clz.create(row);
             const fields = this.getRelatedFields();
-
             for (let i = 0; i < fields.length; i++) {
                 const obj = fields[i];
                 const res = await obj['dao'].get()[obj.relation](row.id, this.getTable());
                 retObj[obj['field']] = (await obj['dao'].get()['rowToClass'](res));
             }
-
             return retObj;
         }
         else return {};
@@ -106,8 +109,8 @@ class SquigDao {
     }
 
     async upsert(bean) {
-        if (bean.id) return _update(bean);
-        else return _insert(bean);
+        if (bean.id) return this._update(bean);
+        else return this._insert(bean);
     }
 
 }

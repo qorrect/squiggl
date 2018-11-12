@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const {SQGType, Relation, Strings} = require('../../../constants');
+const {Relation, Strings} = require('../../../constants');
 const langUtil = require('../../langUtil');
 const logger = require('../../../utils/logUtil');
 const {clone} = require('../../../utils/sysUtils');
@@ -39,7 +39,7 @@ class BaseSQLGenerator {
                 fields.push(field + ' ' + fieldObj);
             }
             else {
-                logger.warn('Doing nothing with field type ' + field)
+                logger.warn('Doing nothing with field type ' + field);
             }
         });
 
@@ -54,7 +54,7 @@ class BaseSQLGenerator {
             }
         }
 
-        let key_clause = keys.length ? keys.join(',') + ',' : '';
+        const key_clause = keys.length ? keys.join(',') + ',' : '';
         sql += fields.join(',') + ' , ' + key_clause + this.createPrimaryKey() + ' )';
         sql += ';';
 
@@ -71,10 +71,6 @@ class BaseSQLGenerator {
         return ' id INT NOT NULL AUTO_INCREMENT PRIMARY KEY ';
     }
 
-    /**
-     *
-     * @param {SQGType} type
-     */
     getSqlType(type) {
         return type;
     }
@@ -84,7 +80,7 @@ class BaseSQLGenerator {
     }
 
     relatedByManyToManySQL() {
-        return "id in (SELECT %s_id FROM %s_%s  WHERE %s_id "
+        return 'id in (SELECT %s_id FROM %s_%s  WHERE %s_id ';
     }
 
 

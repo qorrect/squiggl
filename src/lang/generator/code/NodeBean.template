@@ -8,5 +8,7 @@ class ${model._model} extends SquigBean {
     static create(row) {
         return new ${model._model}(row);
     }
+
+
 }
 

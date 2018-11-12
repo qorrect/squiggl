@@ -27,6 +27,7 @@
     "database-js": "^3.0.8",
     "database-js-mysql": "^1.1.3",
     "dustjs-linkedin": "^2.7.5",
+    "eslint": "^5.9.0",
     "lodash": "^4.17.11",
     "log4js": "^3.0.6",
     "minimist": "^1.2.0",
