@@ -32,6 +32,16 @@ class SquigDao {
         return ret;
     }
 
+    async _insert(bean) {
+
+        const fields = Object.keys(bean);
+        const values = Object.keys(bean).map(() => ' ? ');
+        const args = Object.keys(bean).map(key => bean[key]);
+
+        const sql = `INSERT INTO ${this._table} (${fields}) VALUES(${values})`;
+        return this._exec(sql, ...args);
+    }
+
     async _findById(id) {
         const sql = `SELECT * from ${this._table} WHERE id = ? `;
         const res = await this._exec(sql, id);
@@ -104,9 +114,6 @@ class SquigDao {
         throw new Error('This must be overriden');
     }
 
-    async _insert(bean) {
-        throw new Error('This must be overriden');
-    }
 
     async upsert(bean) {
         if (bean.id) return this._update(bean);
