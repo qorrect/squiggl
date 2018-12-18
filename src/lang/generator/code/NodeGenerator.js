@@ -8,7 +8,7 @@ class NodeGenerator extends BaseCodeGenerator {
 
     generateDao(model) {
 
-        const compiled = _.template(fs.readFileSync(__dirname + '/NodeDao.template'));
+        const compiled = this.compile(__dirname + '/NodeDao.template');
         let relatedFields = '\n';
         const refBy = [];
 
@@ -23,8 +23,7 @@ class NodeGenerator extends BaseCodeGenerator {
                 relatedFields += "relation: '" + this.translateRelation(field.relation) + "'\n";
 
                 relatedFields += "},";
-            }
-            else if (langUtil.isMetaType(key)) {
+            } else if (langUtil.isMetaType(key)) {
                 refBy.push(field);
             }
         });
@@ -33,7 +32,7 @@ class NodeGenerator extends BaseCodeGenerator {
 
     generateBean(model) {
 
-        const compiled = _.template(fs.readFileSync(__dirname + '/NodeBean.template'));
+        const compiled = this.compile(__dirname + '/NodeBean.template');
         return compiled({model});
     }
 
@@ -54,8 +53,10 @@ class NodeGenerator extends BaseCodeGenerator {
         return relation;
     }
 
-    generateImports(options) {
-        return 'const {SquigBean, SquigDao} = require(\'../src/dist/SquigDao\');\n';
+    generateImports(options, sql) {
+        const compiled = this.compile((__dirname + '/SquigDao.template'));
+        return compiled({options, sql: sql.substr(sql.indexOf('\n')).replace(/\n/,'')});
+
     }
 
     generateExports(models) {

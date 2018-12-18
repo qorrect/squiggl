@@ -1,5 +1,6 @@
 const {Strings} = require('../../../constants');
 const MysqlGenerator = require('./MysqlGenerator');
+const PostgresqlGenerator = require('./PostgresqlGenerator');
 
 class SQLGenerator {
 
@@ -16,8 +17,9 @@ class SQLGenerator {
     static get(vendor, options) {
         if (vendor.toLowerCase() === Strings.SQL.Vendor.MYSQL) {
             return new MysqlGenerator(options);
-        }
-        else throw new Error(`Couldnt find SQL generator for vendor ${vendor}`);
+        } else if (vendor.toLowerCase() === Strings.SQL.Vendor.POSTGRESQL) {
+            return new PostgresqlGenerator(options);
+        } else throw new Error(`Couldnt find SQL generator for vendor ${vendor}`);
     }
 }
 

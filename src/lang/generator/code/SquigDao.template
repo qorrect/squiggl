@@ -7,13 +7,38 @@ class SquigDao {
         this.clz = clz;
         this.connection =
             // new Connection("sqlite:///path/to/test.sqlite"); // SQLite
-            new Connection('mysql://root:m@localhost/CHARLIE_TEST'); // MySQL
+            new Connection('{{options.driver}}://{{options.user}}:{{options.password}}@{{options.host}}/{{options.database_name}}'); // MySQL
 // new Connection("postgres://user:password@localhost/test"); // PostgreSQL
         this._table = table;
     }
 
+    async init () {
+        return this.createIfNotExists();
+    }
+    async createIfNotExists() {
+
+        const splits = `{{sql}}`.split(';');
+        const results = [];
+        for (let i = 0; i < splits.length; i++) {
+            const sql = splits[i];
+            const res = await this._execute(sql);
+            results.push(res);
+        }
+        return results;
+
+    }
+
     getTable() {
         return this._table;
+    }
+
+
+    async _execute(sql) {
+        console.log(`Executing ${sql})`);
+        const statement = this.connection.prepareStatement(sql);
+        const results = await statement.execute();
+        // console.log(results);
+        return results;
     }
 
 
@@ -66,6 +91,11 @@ class SquigDao {
         return res;
     }
 
+    async oneToNReferenced(id, column) {
+        const sql = `SELECT * from ${column} WHERE id = ?`;
+        const res = await this._exec(sql, id);
+        return res;
+    }
 
     async nToNRelated(id, column) {
         const sql = `SELECT * from ${this._table} WHERE id in (
@@ -92,8 +122,7 @@ class SquigDao {
                 res.push(await this._rowToClass(row[i]));
             }
             return res;
-        }
-        else return this._rowToClass(row);
+        } else return this._rowToClass(row);
     }
 
     async _rowToClass(row) {
@@ -106,8 +135,7 @@ class SquigDao {
                 retObj[obj['field']] = (await obj['dao'].get()['rowToClass'](res));
             }
             return retObj;
-        }
-        else return {};
+        } else return {};
     }
 
     async _update(bean) {

@@ -1,4 +1,4 @@
-const {Author, BookDAO, AuthorDAO} = require('./dao');
+const {Author, BookDAO, AuthorDAO, SquigDao} = require('./dao');
 
 async function main() {
 
@@ -15,8 +15,8 @@ async function main() {
     //
     // const authors = await AuthorDAO.get()._find('age > ? AND name like ?', '0', '%charlie%');
     // console.log(JSON.stringify(authors, null, 4));
-
-    const author = new Author( {name: 'Ernio Hummingway', age: -1});
+    await AuthorDAO.get().init();
+    const author = new Author({name: 'Ernio Hummingway', age: -1});
     AuthorDAO.get()._insert(author);
 }
 

@@ -34,13 +34,13 @@ class SQG {
 
         const sql = SQG.generateSQL(models, options);
         // console.log(sql);
-        SQG.write(sql,'squig.sql', options.outdir);
-        const code = SQG.generateCode(models, options);
-        SQG.write(code,'dao.js', options.outdir)
+        SQG.write(sql, 'squig.sql', options.outdir);
+        const code = SQG.generateCode(models, options, sql);
+        SQG.write(code, 'dao.js', options.outdir)
         // console.log(code);
     }
 
-    static write(data,file,dir) {
+    static write(data, file, dir) {
         fs.writeFileSync(dir + '/' + file, data);
     }
 
@@ -48,7 +48,7 @@ class SQG {
     static generateSQL(models, options) {
         const generator = SQLGenerator.get(options.vendor);
         let sql = '';
-        sql += generator.createDatabase(options.schemaName);
+        sql += generator.createDatabase(options.database_name);
         models.forEach(model => {
             sql += generator.createTable(model) + '\n';
         });
@@ -81,16 +81,17 @@ class SQG {
                 // Its a non-primitive type
                 const fieldObj = model[fieldName];
                 const id = fieldObj._model + '_id';
+                let modelName = fieldObj.model;
 
                 if (langUtil.isCustomType(fieldObj, fieldName)) {
-                    const opposite = map[fieldObj.model];
+                    const opposite = map[modelName];
                     if (!opposite) {
-                        throw new Error('Model ' + fieldObj.model + ' not found ( referenced by ' + modelName + ' ) , did you pass it to generate() ?');
+                        throw new Error('Model ' + modelName + ' not found ( referenced by ' + modelName + ' ) , did you pass it to generate() ?');
                     }
                     opposite[Strings.REFERENCED_BY] = fieldObj;
                     opposite[Strings.REFERENCED_BY].originalModel = opposite[Strings.REFERENCED_BY].model;
                     delete opposite[Strings.REFERENCED_BY].model;
-                    opposite[Strings.REFERENCED_BY].refByModel = modelName;
+                    opposite[Strings.REFERENCED_BY].refByModel = model._model;
                 }
                 // Its a primitive type
                 else {
@@ -101,9 +102,9 @@ class SQG {
         return models;
     }
 
-    static generateCode(models, options) {
+    static generateCode(models, options, sql) {
         const generator = CodeGenerator.get(options.language);
-        let code = generator.generateImports(options);
+        let code = generator.generateImports(options, sql);
         models.forEach(model => {
             code += generator.generateBean(model);
         });
@@ -119,7 +120,17 @@ class SQG {
     static ensureDefaultOptions(_options) {
         const options = clone(_options);
         options.outdir = options.outdir ? options.outdir : 'squig_out/';
+        options.driver = options.driver ? options.driver : SQG.getDriver(options.vendor);
         return options;
+    }
+
+    static getDriver(vendor) {
+        switch (vendor) {
+            case 'mysql':
+                return 'mysql';
+            case 'postgresql' :
+                return 'database-js-postgres';
+        }
     }
 }
 

@@ -3,15 +3,20 @@ const Strings = {
         Vendor: {
             MYSQL: 'mysql',
             POSTGRESQL: 'postgresql'
+        },
+        Driver: {
+            MYSQL: 'mysql',
+            POSTGRESQL: 'database-js-postgres'
         }
     },
-    REFERENCED_BY: 'referencedBy'
+    REFERENCED_BY: 'referencedBy',
+    RELATED_FIELDS: 'relatedFields'
 };
 
 const Type = {
     String: (size = 50) => `varchar(${size})`,
 
-    Integer: (size = 8) => `int(${size})`,
+    Integer: (size = 8) => `integer (${size})`,
     UUID: 'UUID',
     Date: () => 'Date',
     Float: 'Float',

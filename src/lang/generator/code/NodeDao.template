@@ -1,29 +1,30 @@
-let ${model._model}Instance = null;
+let {{ model._model }}Instance = null;
 
-class ${model._model}DAO extends SquigDao {
+class {{ model._model }}DAO extends SquigDao {
 
-    constructor(table = '${model._model}', clz = ${model._model}) {
+    constructor(table = '{{ model._model }}', clz = {{ model._model }}) {
         super(table, clz);
     }
 
     getRelatedFields() {
-        return [${relatedFields}];
+        return [{{ relatedFields }}];
     }
 
     static get() {
-        if (${model._model}Instance) return ${model._model}Instance;
+        if ({{ model._model }}Instance) return {{ model._model }}Instance;
         else {
-            ${model._model}Instance = new ${model._model}DAO();
-            return ${model._model}Instance;
+            {{ model._model }}Instance = new {{ model._model }}DAO();
+            return {{ model._model }}Instance;
         }
     }
-    <% _.forEach(refBy, function(obj) { %>async get<%- obj.refByModel %>( <%-obj.originalModel.toLowerCase() %>){
+    <? _.forEach(refBy, function(obj) { ?>async get<?- obj.refByModel ?>( <?-obj.originalModel.toLowerCase() ?>){
 
-        <% if ( obj.relation === "ONE_TO_MANY") { %>
-            return this.oneToNRelated(${obj.originalModel.toLowerCase()}.${obj.refByModel}_id, '${obj.refByModel}');
-        <%} else if ( obj.relation === "MANY_TO_ONE") {%>
-            return this.nToOneReferenced(${obj.originalModel.toLowerCase()}.id, '${obj.refByModel}');
+        <? if ( obj.relation === "ONE_TO_MANY") { ?>
+            return this.oneToNReferenced({{ obj.originalModel.toLowerCase() }}.{{ obj.refByModel }}_id, '{{ obj.refByModel }}');
+        <?} else if ( obj.relation === "MANY_TO_ONE") {?>
+            return this.nToOneReferenced({{ obj.originalModel.toLowerCase() }}.id, '{{ obj.refByModel }}');
 
-        <%}%>
-    }<% }); %>
+        <?}?>
+    }
+            <? }); ?>
 }

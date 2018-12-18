@@ -3,11 +3,12 @@ const {Type, Relation} = require('./constants');
 
 const options = {
     database: 'library',
-    vendor: 'mysql',
-    username: 'root',
+    vendor: 'postgresql',
+    user: 'root',
     password: 'm',
     language: 'node',
-    schemaName: 'CHARLIE_TEST',
+    host: 'localhost',
+    database_name: 'squig_test',
     outdir: 'delete_this_eventually',
     createTables: true
 };
@@ -33,6 +34,6 @@ const Book = {
 const Fans = {
     title: Type.String(),
     author: {model: "Author", relation: Relation.MANY_TO_ONE}
-}
+};
 
 SQG.generate({Author, Book, Editor, Fans}, options);

@@ -5,7 +5,7 @@ class Validator {
 
 
     static validate(models, options) {
-        const requiredConfigs = ['vendor', 'username', 'password', 'schemaName'];
+        const requiredConfigs = ['vendor', 'user', 'password', 'database_name','host'];
         const errorResponse = {
             errors: [],
             succeeded: true,

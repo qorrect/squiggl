@@ -19,7 +19,7 @@ class BaseSQLGenerator {
     }
 
     createTable(model) {
-        let sql = `CREATE TABLE ${model._model} (`;
+        let sql = `CREATE TABLE IF NOT EXISTS ${model._model} (`;
         const fields = [], keys = [], manyToMany = [];
         Object.keys(this.prune(model)).forEach(field => {
             // Its a non-primitive type
@@ -37,8 +37,7 @@ class BaseSQLGenerator {
             // Its a primitive type
             else if (!langUtil.isMetaType(field)) {
                 fields.push(field + ' ' + fieldObj);
-            }
-            else {
+            } else {
                 logger.warn('Doing nothing with field type ' + field);
             }
         });
@@ -48,23 +47,26 @@ class BaseSQLGenerator {
             if (refBy.relation === Relation.ONE_TO_MANY ||
                 refBy.relation === Relation.ONE_TO_ONE) {
                 fields.push(refBy.refByModel + '_id int');
-            }
-            else if (refBy.relation === Relation.MANY_TO_MANY) {
+            } else if (refBy.relation === Relation.MANY_TO_MANY) {
                 manyToMany.push({relation: refBy.relation, model: refBy.originalModel, refByModel: refBy.refByModel});
             }
         }
 
         const key_clause = keys.length ? keys.join(',') + ',' : '';
-        sql += fields.join(',') + ' , ' + key_clause + this.createPrimaryKey() + ' )';
+        sql += langUtil.stripSQLSizes(fields).join(',') + ' , ' + key_clause + this.createPrimaryKey() + ' )';
         sql += ';';
 
         manyToMany.forEach(obj => {
             const modelId = obj.model + '_id';
             const refId = obj.refByModel + '_id';
-            sql += `\nCREATE TABLE ${obj.model}_${obj.refByModel} (${modelId} int, ${refId} int,  ` +
-                this.createPrimaryKey() + `, INDEX lookup(${modelId},${refId}) );`;
+            sql += `\nCREATE TABLE IF NOT EXISTS ${obj.model}_${obj.refByModel} (${modelId} int, ${refId} int,  ` +
+                this.createPrimaryKey() + this.createIndexOnManyToMany(modelId, refId) + ` );`;
         });
         return sql;
+    }
+
+    createIndexOnManyToMany(modelId, refId) {
+        return `, INDEX lookup(${modelId},${refId})`;
     }
 
     createPrimaryKey() {

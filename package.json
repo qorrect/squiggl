@@ -4,8 +4,8 @@
   "description": "SQL Generator",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/index.js"
+    "test": "node delete_this_eventually/index.js",
+    "start": "node $NODE_DEBUG_OPTION src/index.js"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,7 @@
   "dependencies": {
     "database-js": "^3.0.8",
     "database-js-mysql": "^1.1.3",
+    "database-js-postgres": "^1.1.3",
     "dustjs-linkedin": "^2.7.5",
     "eslint": "^5.9.0",
     "lodash": "^4.17.11",
